@@ -5,7 +5,9 @@
 > quality data from agricultural wells — from field records to an interactive
 > dashboard, with an automated data pipeline and documented data governance.
 ---
+
 ![Dashboard — time series view](ecra.png)
+
 ## Why monitor
 
 Understanding the temporal dynamics of nitrate contamination — and assessing
