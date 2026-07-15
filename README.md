@@ -15,7 +15,7 @@ continuous, spatially representative data series. That is the role of
 periodic monitoring, the central element of the Vulnerable Zone's
 surveillance system.
 
-The Esposende – Vila do Conde Vulnerable Zone (*Zona Vulnerável*, ZV1) is one
+The Esposende – Vila do Conde Vulnerable Zone (*Zona Vulnerável*, ZV) is one
 of the areas designated in Portugal under the EU Nitrates Directive, covering
 intensively farmed territory in the municipalities of Barcelos, Esposende,
 Póvoa de Varzim and Vila do Conde. The Action Programme in force imposes
