@@ -1,6 +1,7 @@
 # Periodic nitrate monitoring in groundwater
 ### Esposende – Vila do Conde Vulnerable Zone, Portugal (Nitrates Directive, 91/676/EEC)
-![Dashboard — time series view](ecran.png)
+
+![Dashboard — time series view](ecra.png)
 > An integrated system for collecting, managing and analysing groundwater
 > quality data from agricultural wells — from field records to an interactive
 > dashboard, with an automated data pipeline and documented data governance.
