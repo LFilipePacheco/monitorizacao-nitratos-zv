@@ -1,145 +1,147 @@
-# Monitorização periódica dos teores de nitratos
-### Zona Vulnerável Esposende – Vila do Conde (Diretiva Nitratos, 91/676/CEE)
+# Periodic nitrate monitoring in groundwater
+### Esposende – Vila do Conde Vulnerable Zone, Portugal (Nitrates Directive, 91/676/EEC)
 
-> Sistema integrado de recolha, gestão e análise de dados de qualidade da água
-> subterrânea em poços agrícolas — do registo de campo ao dashboard interactivo,
-> com pipeline de dados automatizado e governação documentada.
+> An integrated system for collecting, managing and analysing groundwater
+> quality data from agricultural wells — from field records to an interactive
+> dashboard, with an automated data pipeline and documented data governance.
 
 ---
 
-## Porquê monitorizar
+## Why monitor
 
-Para compreender a dinâmica temporal da contaminação por nitratos e avaliar se
-as medidas em vigor estão efetivamente a produzir resultados, é indispensável
-dispor de séries de dados contínuas e espacialmente representativas. É esse o
-papel da monitorização periódica, que constitui o elemento central do sistema
-de acompanhamento da Zona Vulnerável.
+Understanding the temporal dynamics of nitrate contamination — and assessing
+whether the measures in force are actually producing results — requires
+continuous, spatially representative data series. That is the role of
+periodic monitoring, the central element of the Vulnerable Zone's
+surveillance system.
 
-A Zona Vulnerável Esposende – Vila do Conde (ZV) é uma das zonas designadas em
-Portugal ao abrigo da Diretiva Nitratos, abrangendo territórios agrícolas de
-elevada intensidade produtiva nos municípios de Barcelos, Esposende, Póvoa de
-Varzim e Vila do Conde. O Programa de Ação em vigor impõe restrições às
-práticas de fertilização; a monitorização é o instrumento que permite verificar
-o seu efeito real sobre a água subterrânea, poço a poço, campanha a campanha.
+The Esposende – Vila do Conde Vulnerable Zone (*Zona Vulnerável*, ZV1) is one
+of the areas designated in Portugal under the EU Nitrates Directive, covering
+intensively farmed territory in the municipalities of Barcelos, Esposende,
+Póvoa de Varzim and Vila do Conde. The Action Programme in force imposes
+restrictions on fertilisation practices; monitoring is the instrument that
+verifies their real effect on groundwater — well by well, campaign by
+campaign.
 
-A rede de monitorização assenta em poços agrícolas distribuídos pela área da ZV,
-com registo periódico das concentrações de NO₃ (mg/L) e
-avaliação face ao Valor Máximo Admissível (VMA = 50 mg/L) e a um limiar de
-alerta interno (25 mg/L). Algumas séries remontam a 2008 — um património de
-dados de quase duas décadas.
+The monitoring network consists of agricultural wells distributed across the
+three sectors of the zone, with periodic recording of NO₃ concentrations
+(mg/L) assessed against the Maximum Admissible Value (MAV = 50 mg/L) and an
+internal alert threshold (25 mg/L). Some series date back to 2008 — a data
+heritage of nearly two decades.
 
-## O problema
+## The problem
 
-O processo herdado apresentava fragilidades típicas de sistemas crescidos
-organicamente ao longo de anos:
+The inherited process showed the weaknesses typical of systems that grow
+organically over many years:
 
-- **Dados presos num Excel partilhado** — o registo de campo funcionava bem,
-  mas a análise exigia extração e tratamento manual a cada campanha;
-- **Análise pontual, não contínua** — gráficos estáticos produzidos
-  manualmente para relatórios; tendências emergentes podiam passar
-  despercebidas entre relatórios;
-- **Sem partilha operacional** — as equipas que registam os dados não tinham
-  acesso fácil aos resultados analíticos do seu próprio trabalho;
-- **Qualidade de dados sem verificação sistemática** — valores anómalos
-  (coordenadas GPS registadas em células de medições, valores impossíveis)
-  permaneciam na série e contaminavam estatísticas;
-- **Conhecimento não documentado** — regras de gestão (suspensão de poços,
-  correções, poços novos) dependiam de memória individual.
+- **Data locked in a shared Excel file** — field recording worked well, but
+  every analysis required manual extraction and processing, campaign after
+  campaign;
+- **Point-in-time analysis, not continuous** — static charts produced by hand
+  for reports; emerging trends could go unnoticed between reporting cycles;
+- **No operational sharing** — the teams recording the data had no easy
+  access to the analytical results of their own work;
+- **No systematic data-quality checks** — anomalous values (GPS coordinates
+  recorded in measurement cells, impossible values) remained in the series
+  and contaminated statistics;
+- **Undocumented knowledge** — management rules (well suspension,
+  corrections, new wells) depended on individual memory.
 
-## A solução
+## The solution
 
-Um pipeline de dados em camadas, com o princípio de **fonte única**: o Excel
-partilhado permanece o ponto de registo (sem alterar o fluxo de trabalho das
-equipas de campo); tudo o resto deriva dele de forma automática e idempotente.
+A layered data pipeline built on a **single-source principle**: the shared
+Excel file remains the point of record (leaving the field teams' workflow
+untouched); everything else derives from it automatically and idempotently.
 
 ```
-Equipas de campo registam no Excel partilhado (OneDrive)
+Field teams record in the shared Excel file (OneDrive)
         │
-        ├──► PostgreSQL (fonte de verdade analítica)
-        │        └──► Relatório Word automatizado (estatísticas, gráficos, conformidade)
+        ├──► PostgreSQL (analytical source of truth)
+        │        └──► Automated Word report (statistics, charts, compliance)
         │
-        ├──► ArcGIS (feature class de medições — análise espacial)
+        ├──► ArcGIS (measurements feature class — spatial analysis)
         │
-        └──► GitHub (publicação mensal agendada, com log de auditoria)
-                 └──► Dashboard Streamlit na cloud
-                          └──► equipas e decisores, via browser, autenticado
+        └──► GitHub (scheduled monthly publication, with audit log)
+                 └──► Streamlit dashboard in the cloud
+                          └──► field teams and decision-makers, via browser, authenticated
 ```
 
-### Componentes principais
+### Main components
 
-**1. Ingestão validada (Excel → PostgreSQL)** — leitura estruturada do formato
-de campo (uma folha por município, códigos de poço em linha de cabeçalho),
-com validação na entrada e carregamento idempotente: correções no Excel
-propagam-se; nada é apagado automaticamente (proteção contra perdas
-acidentais).
+**1. Validated ingestion (Excel → PostgreSQL)** — structured reading of the
+field format (one sheet per municipality, well codes in a header row), with
+validation on entry and idempotent loading: corrections in Excel propagate;
+nothing is ever deleted automatically (protection against accidental loss).
 
-**2. Sincronização espacial (Excel → GDB)** — as medições alimentam uma
-feature class no ArcGIS, permitindo análise espacial (interpolação IDW e
-kriging da distribuição de nitratos) e cartografia de apoio à decisão.
+**2. Spatial synchronisation (Excel → GDB)** — measurements feed an ArcGIS
+feature class, enabling spatial analysis (IDW and kriging interpolation of
+nitrate distribution) and decision-support cartography.
 
-**3. Relatório automatizado** — documento Word institucional gerado por
-script: estatísticas descritivas por poço, séries temporais, tendências
-lineares com significância, heatmaps anuais, conformidade com o VMA e
-conclusões calculadas — o que antes exigia dias passa a minutos.
+**3. Automated reporting** — an institutional Word document generated by
+script: descriptive statistics per well, time series, linear trends with
+significance testing, annual heatmaps, MAV compliance and computed
+conclusions — work that once took days now takes minutes.
 
-**4. Dashboard interactivo (Streamlit)** — publicado na cloud com
-autenticação, atualizado automaticamente todos os meses por tarefa agendada
-(commit/push para GitHub com log de auditoria). Sete vistas analíticas:
-séries temporais, distribuições, heatmap anual, tendências com regressão
-(declive anualizado, R², p-value), conformidade, qualidade dos dados e
-exportação. Detalhes de desenho com relevância metodológica:
+**4. Interactive dashboard (Streamlit)** — deployed to the cloud with
+authentication, updated automatically every month by a scheduled task
+(commit/push to GitHub with an audit log). Seven analytical views: time
+series, distributions, annual heatmap, trends with regression (annualised
+slope, R², p-value), compliance, data quality and export. Design details
+with methodological relevance:
 
-- *Separação estrita entre medido e imputado* — todas as estatísticas usam
-  exclusivamente observações reais; valores imputados (lacunas interiores,
-  mínimo de 3 observações) servem apenas a continuidade visual e são
-  assinalados graficamente;
-- *Metadados lidos da convenção de campo* — poços suspensos são detetados
-  pela cor de preenchimento no cabeçalho do Excel, eliminando listas
-  paralelas de configuração;
-- *Filtro de sanidade na leitura* (0–1000 mg/L) — rejeita erros
-  (coordenadas, datas serializadas) sem excluir medições extremas genuínas,
-  com aviso do número de valores rejeitados.
+- *Strict separation between measured and imputed values* — all statistics
+  use real observations exclusively; imputed values (interior gaps only,
+  minimum of 3 real observations) serve visual continuity alone and are
+  graphically flagged;
+- *Metadata read from the field convention* — suspended wells are detected
+  from the fill colour of their header cell in the Excel file, eliminating
+  parallel configuration lists;
+- *Sanity filter on read* (0–1000 mg/L) — rejects obvious nonsense
+  (coordinates, serialised dates) without excluding genuine extreme
+  measurements, and reports the number of rejected values.
 
-**5. Governação documentada** — guia formal de organização e gestão:
-arquitetura, exceções justificadas à regra da fonte única, procedimentos
-(suspender poço, poço novo, correções), rotina mensal, cópias de segurança
-(OneDrive + GitHub offsite + dumps PostgreSQL agendados).
+**5. Documented governance** — a formal organisation and management guide:
+architecture, justified exceptions to the single-source rule, procedures
+(suspending a well, adding a well, corrections), monthly routine, and
+backups (OneDrive versioning + off-site GitHub copy + scheduled PostgreSQL
+dumps).
 
-## Benefícios
+## Benefits
 
-- **Do registo à análise sem intervenção manual** — a atualização mensal é
-  uma tarefa agendada; o esforço analítico recorrente aproximou-se de zero;
-- **Deteção atempada** — tendências crescentes e ultrapassagens ao VMA
-  tornam-se visíveis no próprio mês, não no relatório seguinte; poços
-  problemáticos são identificáveis de imediato para investigação dirigida;
-- **Qualidade de dados auditável** — a verificação sistemática na leitura
-  já identificou e isolou anomalias reais (coordenadas GPS em células de
-  medições; recuperação de medições extremas genuínas de 501–600 mg/L que
-  um filtro ingénuo excluiria);
-- **Democratização dos resultados** — a equipa que produzem os dados
-  passaram a ver o resultado analítico do seu trabalho num browser, sem
-  instalar nada;
-- **Resiliência institucional** — processos, regras e arquitetura
-  documentados; histórico protegido por três camadas de backup; o sistema
-  não depende da memória de uma pessoa.
+- **From record to analysis with no manual steps** — the monthly update is a
+  scheduled task; recurring analytical effort dropped to near zero;
+- **Timely detection** — rising trends and MAV exceedances become visible
+  within the month, not in the next report; problem wells are immediately
+  identifiable for targeted investigation;
+- **Auditable data quality** — systematic checks on read have already
+  identified and isolated real anomalies (GPS coordinates in measurement
+  cells; recovery of genuine extreme measurements of 501–600 mg/L that a
+  naïve filter would have excluded);
+- **Democratised results** — the teams producing the data now see the
+  analytical outcome of their own work in a browser, with nothing to
+  install;
+- **Institutional resilience** — processes, rules and architecture are
+  documented; history is protected by three backup layers; the system does
+  not depend on any one person's memory.
 
 ## Stack
 
 Python (pandas · openpyxl · psycopg2 · SciPy · Plotly) · PostgreSQL ·
-ArcGIS Pro (arcpy) · Streamlit · GitHub (+ Actions de deploy da Streamlit
-Cloud) · Agendador de Tarefas do Windows · python-docx
+ArcGIS Pro (arcpy) · Streamlit · GitHub (+ Streamlit Cloud auto-deploy) ·
+Windows Task Scheduler · python-docx
 
-## Nota sobre os dados
+## About the data
 
-Os dados de monitorização são propriedade institucional da CCDR-Norte, I.P. e
-não são publicados neste repositório. A demonstração pública do dashboard
-utiliza **dados sintéticos** com estrutura e comportamento estatístico
-plausíveis (sazonalidade, tendências, lacunas), gerados por script incluído
-no repositório.
+The monitoring data are the institutional property of CCDR-Norte, I.P.
+(Northern Portugal Regional Coordination and Development Commission) and are
+not published in this repository. The public demo of the dashboard uses
+**synthetic data** with plausible structure and statistical behaviour
+(seasonality, trends, gaps), generated by a script included here. The
+dashboard interface is in Portuguese, as deployed for the field teams.
 
 ---
 
 **Luís Filipe Pacheco** — Senior Agricultural Engineer & Data Scientist,
-CCDR-Norte, I.P. · [Perfil GitHub](https://github.com/LFilipePacheco) ·
+CCDR-Norte, I.P. · [GitHub profile](https://github.com/LFilipePacheco) ·
 [LinkedIn](https://www.linkedin.com/in/lu%C3%ADs-filipe-pacheco-471495b/) ·
 [ORCID](https://orcid.org/0009-0001-7676-6542)
